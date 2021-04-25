@@ -5,14 +5,18 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using DashBoard_React_Asp.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace DashBoard_React_Asp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IConfigurationRoot _confstring;
+        public Startup(IWebHostEnvironment hostEnv)
         {
-            Configuration = configuration;
+            _confstring = new ConfigurationBuilder().SetBasePath(hostEnv.ContentRootPath).AddJsonFile("dbsettings.json").Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -20,9 +24,14 @@ namespace DashBoard_React_Asp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(_confstring.GetConnectionString("DefaultConnection")));
+            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddControllersWithViews();
-
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => //CookieAuthenticationOptions
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Admin/Login");
+                });
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -47,7 +56,8 @@ namespace DashBoard_React_Asp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
+            app.UseAuthentication();    // аутентификация
+            app.UseAuthorization();     // авторизация
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
