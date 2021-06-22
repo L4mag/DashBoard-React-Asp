@@ -57,8 +57,8 @@ namespace DashBoard_React_Asp
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseAuthentication();    // аутентификаци€
-            app.UseAuthorization();     // авторизаци€
             app.UseRouting();
+            app.UseAuthorization();     // авторизаци€
 
             app.UseEndpoints(endpoints =>
             {

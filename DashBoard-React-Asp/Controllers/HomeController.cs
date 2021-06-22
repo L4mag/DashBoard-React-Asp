@@ -8,7 +8,7 @@ namespace DashBoard_React_Asp.Controllers
 {
     public class HomeController : Controller
     {
-        private ApplicationContext db;
+        private readonly ApplicationContext db;
 
 
         public HomeController(ApplicationContext context)
